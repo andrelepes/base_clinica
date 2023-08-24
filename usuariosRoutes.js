@@ -70,7 +70,8 @@ router.post('/login', async (req, res) => {
 });
 // Registrar novo usuário
 router.post('/registrar', async (req, res) => {
-    const { nome, email, senha, funcao, clinica_id } = req.body; 
+    console.log("Corpo da requisição:", req.body);  // Adicionado para depuração
+    const { nome, email, senha, funcao, clinica_id } = req.body;
 
     try {
         // Verifique se o e-mail já está registrado
@@ -81,6 +82,8 @@ router.post('/registrar', async (req, res) => {
 
         // Criptografe a senha
         const salt = await bcrypt.genSalt(10);
+        console.log("Salt:", salt);  // Adicionado para depuração
+        console.log("Senha:", senha);  // Adicionado para depuração
         const senhaCriptografada = await bcrypt.hash(senha, salt);
 
         // Insira o novo usuário no banco de dados

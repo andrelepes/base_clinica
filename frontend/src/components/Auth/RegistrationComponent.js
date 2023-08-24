@@ -6,9 +6,11 @@ const RegistrationComponent = () => {
   const [password, setPassword] = useState('');
 
   const handleRegister = async () => {
+    console.log(`Tentando registrar com email: ${email} e senha: ${password}`);  // Adicionado para depuração
     try {
-      const response = await api.post('/api/users/register', { email, password });
+      const response = await api.post('/usuarios/registrar', { email, password });
       localStorage.setItem('token', response.data.token);
+      console.log('Registro bem-sucedido:', response.data);  // Adicionado para depuração
     } catch (error) {
       console.error('Falha no registro:', error);
     }

@@ -16,7 +16,7 @@ router.get('/', (req, res) => {
 });
 
 // GET um paciente específico (apenas se estiver ativo)
-router.get('/:id', auth, (req, res) => {
+router.get('/:id', (req, res) => {
     const pacienteId = req.params.id;
     db.one('SELECT * FROM pacientes WHERE id = $1 AND status = $2', [pacienteId, 'ativo'])
         .then(data => {
@@ -29,7 +29,7 @@ router.get('/:id', auth, (req, res) => {
 });
 
 // POST para criar um novo paciente
-router.post('/', auth, (req, res) => {
+router.post('/', (req, res) => {
     if (!['psicologo', 'responsavelTecnico'].includes(req.user.funcao)) {
         return res.status(403).json({ msg: 'Apenas psicólogos ou responsável técnico podem adicionar um novo paciente' });
     }
@@ -60,7 +60,7 @@ router.post('/', auth, (req, res) => {
 });
 
 // PUT para atualizar um paciente
-router.put('/:id', auth, (req, res) => {
+router.put('/:id', (req, res) => {
     if (!['psicologo', 'responsavelTecnico'].includes(req.user.funcao)) {
         return res.status(403).json({ msg: 'Apenas psicólogos ou responsável técnico podem atualizar um paciente' });
     }
@@ -78,7 +78,7 @@ router.put('/:id', auth, (req, res) => {
 });
 
 // DELETE para marcar um paciente como inativo
-router.delete('/:id', auth, (req, res) => {
+router.delete('/:id', (req, res) => {
     if (!['psicologo', 'responsavelTecnico'].includes(req.user.funcao)) {
         return res.status(403).json({ msg: 'Apenas psicólogos ou responsável técnico podem inativar um paciente' });
     }
