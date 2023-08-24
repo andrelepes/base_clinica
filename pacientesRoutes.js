@@ -4,7 +4,7 @@ const db = require('./database');
 const auth = require('./authMiddleware'); // Importando o middleware de autenticação
 
 // GET todos os pacientes ativos
-router.get('/', auth, (req, res) => {
+router.get('/', (req, res) => {
     db.any('SELECT * FROM pacientes WHERE status = $1', ['ativo'])
         .then(data => {
             res.json(data);

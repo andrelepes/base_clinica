@@ -37,6 +37,37 @@ async function sendEmail(to, subject, text) {
     }
 }
 
+
+// Rota de Login
+router.post('/login', async (req, res) => {
+    const { email, senha } = req.body;
+
+    try {
+        const usuario = await db.oneOrNone('SELECT * FROM usuarios WHERE email = $1', [email]);
+        if (!usuario) {
+            return res.status(400).json({ message: 'Usuário não encontrado' });
+        }
+
+        const senhaValida = await bcrypt.compare(senha, usuario.senha);
+        if (!senhaValida) {
+            return res.status(400).json({ message: 'Senha inválida' });
+        }
+
+        const payload = {
+            user: {
+                id: usuario.id,
+                funcao: usuario.funcao,
+                clinica_id: usuario.clinica_id
+            }
+        };
+        const token = jwt.sign(payload, process.env.JWT_SECRET_KEY, { expiresIn: '2h' });
+
+        res.json({ message: 'Login bem-sucedido', token: token });
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('Erro no servidor');
+    }
+});
 // Registrar novo usuário
 router.post('/registrar', async (req, res) => {
     const { nome, email, senha, funcao, clinica_id } = req.body; 

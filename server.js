@@ -2,6 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
+const authMiddleware = require('./authMiddleware'); // Importando o middleware de autenticação
 
 // Importando a conexão com o banco de dados
 const db = require('./database');
@@ -27,12 +28,12 @@ const usuariosRoutes = require('./usuariosRoutes');
 const prontuariosRoutes = require('./prontuariosRoutes');
 
 // Definindo as rotas
-app.use('/api/pacientes', pacientesRoutes);
-app.use('/api/psicologos', psicologosRoutes);
-app.use('/api/agendamentos', agendamentosRoutes);
-app.use('/api/cursos', cursosRoutes); 
-app.use('/api/usuarios', usuariosRoutes);
-app.use('/api', prontuariosRoutes);
+app.use('/api/pacientes', authMiddleware, pacientesRoutes);
+app.use('/api/psicologos', authMiddleware, psicologosRoutes);
+app.use('/api/agendamentos', authMiddleware, agendamentosRoutes);
+app.use('/api/cursos', authMiddleware, cursosRoutes); 
+app.use('/api/usuarios', usuariosRoutes); // Sem middleware de autenticação
+app.use('/api', authMiddleware, prontuariosRoutes); // Com middleware de autenticação
 
 const PORT = 3000;
 

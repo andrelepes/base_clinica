@@ -17,10 +17,10 @@ router.get('/', auth, (req, res) => {
 
 // GET um psicólogo específico
 router.get('/:id', auth, (req, res) => {
-    if (req.user.tipo !== 'responsavelTecnico' && req.user.id !== req.params.id) {
+    const psicologoId = req.params.id;
+    if (req.user.funcao !== 'responsavelTecnico' && req.user.id !== psicologoId) {
         return res.status(403).json({ msg: 'Acesso negado' });
     }
-    const psicologoId = req.params.id;
     db.one('SELECT * FROM psicologos WHERE id = $1 AND clinica_id = $2', [psicologoId, req.user.clinica_id])
         .then(data => {
             res.json(data);
@@ -33,7 +33,7 @@ router.get('/:id', auth, (req, res) => {
 
 // POST para criar um novo psicólogo
 router.post('/', auth, (req, res) => {
-    if (req.user.tipo !== 'responsavelTecnico') {
+    if (req.user.funcao !== 'responsavelTecnico') {
         return res.status(403).json({ msg: 'Apenas o responsável técnico pode adicionar um novo psicólogo' });
     }
     const { nome, cpf, crp, telefone, email } = req.body;
@@ -50,10 +50,10 @@ router.post('/', auth, (req, res) => {
 
 // PUT para atualizar um psicólogo
 router.put('/:id', auth, (req, res) => {
-    if (req.user.tipo !== 'responsavelTecnico' && req.user.id !== req.params.id) {
+    const psicologoId = req.params.id;
+    if (req.user.funcao !== 'responsavelTecnico' && req.user.id !== psicologoId) {
         return res.status(403).json({ msg: 'Acesso negado' });
     }
-    const psicologoId = req.params.id;
     const { nome, cpf, crp, telefone, email } = req.body;
     db.none('UPDATE psicologos SET nome = $1, cpf = $2, crp = $3, telefone = $4, email = $5 WHERE id = $6 AND clinica_id = $7', 
            [nome, cpf, crp, telefone, email, psicologoId, req.user.clinica_id])
@@ -68,7 +68,7 @@ router.put('/:id', auth, (req, res) => {
 
 // DELETE para marcar um psicólogo como inativo
 router.delete('/:id', auth, (req, res) => {
-    if (req.user.tipo !== 'responsavelTecnico') {
+    if (req.user.funcao !== 'responsavelTecnico') {
         return res.status(403).json({ msg: 'Apenas o responsável técnico pode inativar um psicólogo' });
     }
     const psicologoId = req.params.id;

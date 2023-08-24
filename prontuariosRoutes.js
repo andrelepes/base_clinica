@@ -1,8 +1,9 @@
 const express = require('express');
 const router = express.Router();
 const db = require('./database');
+const auth = require('./authMiddleware'); // Importe o middleware de autenticação
 
-router.post('/', async (req, res) => {
+router.post('/', auth, async (req, res) => {
     const { paciente_id, psicologo_id, data, notas_sessao } = req.body;
 
     try {
@@ -17,7 +18,7 @@ router.post('/', async (req, res) => {
     }
 });
 
-router.get('/', async (req, res) => { // A rota continua a mesma
+router.get('/', auth, async (req, res) => { 
     try {
         const prontuarios = await db.manyOrNone('SELECT * FROM prontuarios WHERE status != $1', ['concluído']);
         res.json(prontuarios);
@@ -27,7 +28,7 @@ router.get('/', async (req, res) => { // A rota continua a mesma
     }
 });
 
-router.get('/:id', async (req, res) => {
+router.get('/:id', auth, async (req, res) => {
     const prontuarioId = req.params.id;
 
     try {
@@ -39,7 +40,7 @@ router.get('/:id', async (req, res) => {
     }
 });
 
-router.get('/pacientes/:id/prontuarios', async (req, res) => {
+router.get('/pacientes/:id/prontuarios', auth, async (req, res) => {
     const pacienteId = req.params.id;
 
     try {
@@ -51,7 +52,7 @@ router.get('/pacientes/:id/prontuarios', async (req, res) => {
     }
 });
 
-router.put('/:id', async (req, res) => {
+router.put('/:id', auth, async (req, res) => {
     const prontuarioId = req.params.id;
     const { paciente_id, psicologo_id, data, notas_sessao } = req.body;
 
@@ -90,7 +91,7 @@ router.put('/:id', async (req, res) => {
     }
 });
 
-router.put('/:id/concluir', async (req, res) => {
+router.put('/:id/concluir', auth, async (req, res) => {
     const prontuarioId = req.params.id;
 
     try {
@@ -105,7 +106,7 @@ router.put('/:id/concluir', async (req, res) => {
     }
 });
 
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', auth, async (req, res) => {
     const prontuarioId = req.params.id;
 
     try {
