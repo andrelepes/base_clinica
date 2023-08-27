@@ -1,21 +1,30 @@
 import React from 'react';
 import { Drawer, List, ListItem, ListItemIcon, ListItemText, Avatar } from '@mui/material';
-import { Link } from 'react-router-dom'; // Importando o componente Link
+import { Link, useNavigate } from 'react-router-dom';
 import HomeIcon from '@mui/icons-material/Home';
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 import PersonIcon from '@mui/icons-material/Person';
 import SchoolIcon from '@mui/icons-material/School';
 import SettingsIcon from '@mui/icons-material/Settings';
-import LockOpenIcon from '@mui/icons-material/LockOpen'; // Ícone para Login
-import PersonAddIcon from '@mui/icons-material/PersonAdd'; // Ícone para Registro
+import LogoutIcon from '@mui/icons-material/Logout';
+import BusinessIcon from '@mui/icons-material/Business'; // Ícone para clínicas
 
 function Sidebar() {
+    const username = localStorage.getItem('username') || 'Usuário';
+    const navigate = useNavigate();
+
+    const handleLogout = () => {
+        localStorage.clear();
+        navigate('/login');
+        window.location.reload();
+    };
+
     return (
         <Drawer
             variant="permanent"
             anchor="left"
         >
-            <Avatar alt="User Name" src="/path-to-user-image.jpg">U</Avatar>
+            <Avatar alt={username} src="/path-to-user-image.jpg">{username.charAt(0)}</Avatar>
             <List>
                 <ListItem button component={Link} to="/">
                     <ListItemIcon><HomeIcon /></ListItemIcon>
@@ -29,6 +38,10 @@ function Sidebar() {
                     <ListItemIcon><PersonIcon /></ListItemIcon>
                     <ListItemText primary="Pacientes" />
                 </ListItem>
+                <ListItem button component={Link} to="/clinicas"> {/* Novo item para clínicas */}
+                    <ListItemIcon><BusinessIcon /></ListItemIcon>
+                    <ListItemText primary="Clínica" />
+                </ListItem>
                 <ListItem button component={Link} to="/cursos">
                     <ListItemIcon><SchoolIcon /></ListItemIcon>
                     <ListItemText primary="Cursos" />
@@ -37,13 +50,9 @@ function Sidebar() {
                     <ListItemIcon><SettingsIcon /></ListItemIcon>
                     <ListItemText primary="Configurações" />
                 </ListItem>
-                <ListItem button component={Link} to="/login">  {/* Novo link para Login */}
-                    <ListItemIcon><LockOpenIcon /></ListItemIcon>
-                    <ListItemText primary="Entrar" />
-                </ListItem>
-                <ListItem button component={Link} to="/register">  {/* Novo link para Registro */}
-                    <ListItemIcon><PersonAddIcon /></ListItemIcon>
-                    <ListItemText primary="Registrar" />
+                <ListItem button onClick={handleLogout}>
+                    <ListItemIcon><LogoutIcon /></ListItemIcon>
+                    <ListItemText primary="Sair" />
                 </ListItem>
             </List>
         </Drawer>

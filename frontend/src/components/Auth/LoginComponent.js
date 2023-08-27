@@ -1,33 +1,40 @@
 import React, { useState } from 'react';
-import api from '../../services/api';  // Ajustado com base na estrutura do seu projeto
-import { Link } from 'react-router-dom'; // Importando o componente Link para navegação
+import api from '../../services/api';
+import { Link } from 'react-router-dom';
 
 const LoginComponent = () => {
   const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [errorMsg, setErrorMsg] = useState(''); // Novo estado para armazenar mensagens de erro
+  const [senha, setSenha] = useState('');
+  const [errorMsg, setErrorMsg] = useState('');
 
-  const handleLogin = async () => {
-    console.log(`Tentando fazer login com email: ${email} e senha: ${password}`);  // Adicionado para depuração
+  const handleLogin = async (e) => {
+    e.preventDefault(); // Evitar o comportamento padrão do formulário
+    console.log(`Tentando fazer login com email: ${email} e senha: ${senha}`);
     try {
-      const response = await api.post('/usuarios/login', { email, password });
+      const response = await api.post('/usuarios/login', { email, senha });
       localStorage.setItem('token', response.data.token);
-      setErrorMsg(''); // Limpar qualquer mensagem de erro anterior
-      console.log('Login bem-sucedido:', response.data);  // Adicionado para depuração
+      setErrorMsg('');
+
+      console.log('Login bem-sucedido:', response.data);
+
+      // Forçar um recarregamento da página
+      window.location.reload();
     } catch (error) {
       console.error('Falha no login:', error);
-      setErrorMsg('Falha no login. Verifique seu e-mail e senha.'); // Definir mensagem de erro
+      setErrorMsg('Falha no login. Verifique seu e-mail e senha.');
     }
   };
 
   return (
     <div>
       <h1>Login</h1>
-      <input type='text' placeholder='Email' onChange={(e) => setEmail(e.target.value)} />
-      <input type='password' placeholder='Senha' onChange={(e) => setPassword(e.target.value)} />
-      <button onClick={handleLogin}>Entrar</button>
-      {errorMsg && <p>{errorMsg}</p>} {/* Exibir mensagem de erro se existir */}
-      <Link to="/register">Não tem uma conta? Registre-se aqui.</Link> {/* Link para a página de registro */}
+      <form onSubmit={handleLogin}>
+        <input type='text' placeholder='Email' onChange={(e) => setEmail(e.target.value)} />
+        <input type='password' placeholder='Senha' onChange={(e) => setSenha(e.target.value)} />
+        <button type="submit">Entrar</button>
+      </form>
+      {errorMsg && <p>{errorMsg}</p>}
+      <Link to="/register">Não tem uma conta? Registre-se aqui.</Link>
     </div>
   );
 };

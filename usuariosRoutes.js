@@ -37,7 +37,6 @@ async function sendEmail(to, subject, text) {
     }
 }
 
-
 // Rota de Login
 router.post('/login', async (req, res) => {
     const { email, senha } = req.body;
@@ -62,7 +61,7 @@ router.post('/login', async (req, res) => {
         };
         const token = jwt.sign(payload, process.env.JWT_SECRET_KEY, { expiresIn: '2h' });
 
-        res.json({ message: 'Login bem-sucedido', token: token });
+        res.json({ message: 'Login bem-sucedido', token: token, nome: usuario.nome }); // Nome incluído
     } catch (error) {
         console.error(error);
         res.status(500).send('Erro no servidor');
@@ -70,8 +69,13 @@ router.post('/login', async (req, res) => {
 });
 // Registrar novo usuário
 router.post('/registrar', async (req, res) => {
-    console.log("Corpo da requisição:", req.body);  // Adicionado para depuração
-    const { nome, email, senha, funcao, clinica_id } = req.body;
+    console.log("Corpo da requisição:", req.body);
+    const { nome, email, senha, funcao, clinica_id, clinicaSenha } = req.body;
+
+    // Verificar se todos os campos necessários estão presentes
+    if (!nome || !email || !senha || !funcao || !clinica_id) {
+        return res.status(400).json({ message: 'Todos os campos são obrigatórios' });
+    }
 
     try {
         // Verifique se o e-mail já está registrado
@@ -80,10 +84,16 @@ router.post('/registrar', async (req, res) => {
             return res.status(400).json({ message: 'E-mail já registrado' });
         }
 
+        // Se o usuário é um "Responsável Técnico", verifique a senha da clínica
+        if (funcao === 'Responsável Técnico') {
+            const clinica = await db.oneOrNone('SELECT * FROM clinicas WHERE id = $1', [clinica_id]);
+            if (clinica && clinica.senha !== clinicaSenha) {
+                return res.status(400).json({ message: 'Senha da clínica inválida' });
+            }
+        }
+
         // Criptografe a senha
         const salt = await bcrypt.genSalt(10);
-        console.log("Salt:", salt);  // Adicionado para depuração
-        console.log("Senha:", senha);  // Adicionado para depuração
         const senhaCriptografada = await bcrypt.hash(senha, salt);
 
         // Insira o novo usuário no banco de dados
@@ -94,6 +104,7 @@ router.post('/registrar', async (req, res) => {
         const payload = {
             user: {
                 id: email,
+                nome: nome,
                 funcao: funcao,
                 clinica_id: clinica_id
             }
@@ -106,7 +117,6 @@ router.post('/registrar', async (req, res) => {
         res.status(500).send('Erro no servidor');
     }
 });
-
 // Solicitar Recuperação de Senha
 router.post('/solicitar-recuperacao-senha', async (req, res) => {
     const { email } = req.body;
